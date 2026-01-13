@@ -1,122 +1,44 @@
-# Home Assistant Community Add-on: Tailscale
+This is a fork of the Home Assistant Tailscale Community Add-on that allows you to:
 
-[![GitHub Release][releases-shield]][releases]
-![Project Stage][project-stage-shield]
-[![License][license-shield]](LICENSE.md)
+- Run a second instance of Tailscale, giving you another subdomain on your tailnet (e.g. `immich.your-tailnet.ts.net` in addititon to `homeassistant.your-tailnet.ts.net`)
+- Set a custom internal port for proxying, enabling you to serve things other than the Home Assistant UI using Tailscale Funnel
 
-![Supports aarch64 Architecture][aarch64-shield]
-![Supports amd64 Architecture][amd64-shield]
+For documentation, please refer to the [official Tailscale addon](https://github.com/hassio-addons/addon-tailscale).
 
-[![Github Actions][github-actions-shield]][github-actions]
-![Project Maintenance][maintenance-shield]
-[![GitHub Activity][commits-shield]][commits]
+## Installation
 
-[![Discord][discord-shield]][discord]
-[![Community Forum][forum-shield]][forum]
+1. Add this add-on repository to Home Assistant:
 
-[![Sponsor Frenck via GitHub Sponsors][github-sponsors-shield]][github-sponsors]
+[![Open your Home Assistant instance and show the add add-on repository dialog with a specific repository URL pre-filled.](https://my.home-assistant.io/badges/supervisor_add_addon_repository.svg)](https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https%3A%2F%2Fgithub.com%2Frayanamal%2Faddon-tailscale)
 
-[![Support Frenck on Patreon][patreon-shield]][patreon]
+2. In the Add-on store, install the **Tailscale (Second)** add-on.
 
-Zero config VPN for building secure networks.
+3. In the add-on configuration, set the share option to `funnel` and the `Internal port to proxy` to the internal port you want to proxy.
 
-## About
+4. Start the add-on. Go to the logs. There, you'll see a link like this:
 
-Tailscale is a zero config VPN, which installs on any device in minutes,
-including your Home Assistant instance.
+```
+https://login.tailscale.com/...
+```
+ 
+Open that link to authenticate with Tailscale.
 
-Create a secure network between your servers, computers, and cloud instances.
-Even when separated by firewalls or subnets, Tailscale just works. Tailscale
-manages firewall rules for you, and works from anywhere you are.
+5. In the Tailscale admin console, change the machine name from `homeassistant` to the subdomain prefix you want, e.g. a machine named `immich` will be accessed from `immich.<your-tailnet>.ts.net`. It's also recommended to disable key expiry in machine settings.
 
-[:books: Read the full add-on documentation][docs]
+6. Restart the add-on.
 
-## Support
+## FAQ
 
-Got questions?
+### How does this work?
 
-You have several options to get them answered:
+The Tailscale add-on is a container with the tailscale client running in it. This add-on has a reverse proxy which forwards requests sent to your tailscale domain (aka tailnet name) to local port 8123, which is the port Home Assistant UI is served from.
+The end result is: https://home-assistant.my-tailnet.ts.net → localhost port 8123.
 
-- The [Home Assistant Community Add-ons Discord chat server][discord] for add-on
-  support and feature requests.
-- The [Home Assistant Discord chat server][discord-ha] for general Home
-  Assistant discussions and questions.
-- The Home Assistant [Community Forum][forum].
-- Join the [Reddit subreddit][reddit] in [/r/homeassistant][reddit]
+With this knowledge, we can simply duplicate the Tailscale add-on, give it any name (e.g. my-app) in Tailscale admin console and modify it to forward requests to whatever local port we want (e.g 8080).
+The end result is: https://<my-app>.my-tailnet.ts.net → localhost port 8080
 
-You could also [open an issue here][issue] GitHub.
+### Can I set up a *third* Funnel subdomain with this?
 
-## Contributing
+No. If you want to do this, fork this repo, replace the 3 occurences of `25898` with `25897` in the repository and then load your forked addon. 
 
-This is an active open-source project. We are always open to people who want to
-use the code or contribute to it.
-
-We have set up a separate document containing our
-[contribution guidelines](.github/CONTRIBUTING.md).
-
-Thank you for being involved! :heart_eyes:
-
-## Authors & contributors
-
-The original setup of this repository is by [Franck Nijhof][frenck].
-
-For a full list of all authors and contributors,
-check [the contributor's page][contributors].
-
-## We have got some Home Assistant add-ons for you
-
-Want some more functionality to your Home Assistant instance?
-
-We have created multiple add-ons for Home Assistant. For a full list, check out
-our [GitHub Repository][repository].
-
-## License
-
-MIT License
-
-Copyright (c) 2021-2025 Franck Nijhof
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-
-[aarch64-shield]: https://img.shields.io/badge/aarch64-yes-green.svg
-[amd64-shield]: https://img.shields.io/badge/amd64-yes-green.svg
-[commits-shield]: https://img.shields.io/github/commit-activity/y/hassio-addons/addon-tailscale.svg
-[commits]: https://github.com/hassio-addons/addon-tailscale/commits/main
-[contributors]: https://github.com/hassio-addons/addon-tailscale/graphs/contributors
-[discord-ha]: https://discord.gg/c5DvZ4e
-[discord-shield]: https://img.shields.io/discord/478094546522079232.svg
-[discord]: https://discord.me/hassioaddons
-[docs]: https://github.com/hassio-addons/addon-tailscale/blob/main/tailscale/DOCS.md
-[forum-shield]: https://img.shields.io/badge/community-forum-brightgreen.svg
-[forum]: https://community.home-assistant.io/?u=frenck
-[frenck]: https://github.com/frenck
-[github-actions-shield]: https://github.com/hassio-addons/addon-tailscale/workflows/CI/badge.svg
-[github-actions]: https://github.com/hassio-addons/addon-tailscale/actions
-[github-sponsors-shield]: https://frenck.dev/wp-content/uploads/2019/12/github_sponsor.png
-[github-sponsors]: https://github.com/sponsors/frenck
-[issue]: https://github.com/hassio-addons/addon-tailscale/issues
-[license-shield]: https://img.shields.io/github/license/hassio-addons/addon-tailscale.svg
-[maintenance-shield]: https://img.shields.io/maintenance/yes/2025.svg
-[patreon-shield]: https://frenck.dev/wp-content/uploads/2019/12/patreon.png
-[patreon]: https://www.patreon.com/frenck
-[project-stage-shield]: https://img.shields.io/badge/project%20stage-experimental-yellow.svg
-[reddit]: https://reddit.com/r/homeassistant
-[releases-shield]: https://img.shields.io/github/release/hassio-addons/addon-tailscale.svg
-[releases]: https://github.com/hassio-addons/addon-tailscale/releases
-[repository]: https://github.com/hassio-addons/repository
+Until somebody fixes that hardcoded port number to be randomly selected, or enables an option to disable the Tailscale web interface, this is how it's done.
