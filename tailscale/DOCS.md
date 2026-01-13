@@ -69,6 +69,7 @@ log_level: info
 login_server: "https://controlplane.tailscale.com"
 share_homeassistant: disabled
 share_on_port: 443
+share_from_port: 8080
 snat_subnet_routes: true
 stateful_filtering: false
 tags:
